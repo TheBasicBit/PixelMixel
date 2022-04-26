@@ -30,4 +30,4 @@ for (const layer of map.layers) {
     layers.push(columns);
 }
 
-writeJson("map.json", { width: map.tileswide, height: map.tileshigh, layers: layers, spawnPoints: spawnPoints });
+writeJson("public/map.json", { width: map.tileswide, height: map.tileshigh, layers: layers, spawnPoints: spawnPoints });
