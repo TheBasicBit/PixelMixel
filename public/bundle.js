@@ -230,7 +230,8 @@ const __default = [
     142,
     143,
     158,
-    159
+    159,
+    137, 
 ];
 class Map {
     drawEntities;
