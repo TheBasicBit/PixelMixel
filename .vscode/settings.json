@@ -4,6 +4,8 @@
 
     "liveServer.settings.root": "/public/",
     "liveServer.settings.wait": 1000,
+    "liveServer.settings.port": 5500,
+
     "emeraldwalk.runonsave": {
         "commands": [
             {
