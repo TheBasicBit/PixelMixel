@@ -17,7 +17,7 @@ export function removeElementByValues<T>(array: T[], item: T) {
 }
 
 export function getRootPath(path: string) {
-    return document.querySelector("html>head>base")?.getAttribute("href") + path;
+    return document.querySelector("html>head>meta[base-url]")?.getAttribute("base-url") + path;
 }
 
 export async function getObject(path: string) {
