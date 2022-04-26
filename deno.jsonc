@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "allowJs": false,
+        "lib": [
+            "esnext",
+            "dom",
+            "dom.iterable"
+        ]
+    }
+}
