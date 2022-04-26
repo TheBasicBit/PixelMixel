@@ -297,11 +297,10 @@ class Map {
         return this.isSolid(x, y) || this.isSolid(x + 6, y) || this.isSolid(x - 6, y) || this.isSolid(x, y + 6) || this.isSolid(x, y - 6) || this.isSolid(x - 6, y + 6) || this.isSolid(x - 6, y - 6) || this.isSolid(x + 6, y + 6) || this.isSolid(x + 6, y - 6);
     }
     isSolid(x, y) {
-        let pixelWidth = Map.toPixelUnits(this.data.width);
-        let pixelHeight = Map.toPixelUnits(this.data.height);
         let gridX = Map.toGridUnits(x);
         let gridY = Map.toGridUnits(y);
-        return x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight || this.isEmpty(gridX, gridY);
+        return x < 0 || x >= Map.toPixelUnits(this.data.width) || y < 0 || y >= Map.toPixelUnits(this.data.height) || this.isEmpty(gridX, gridY) || this.data.layers.some((layer)=>ControlTiles.isBlockPointSolid(layer[gridX][gridY], Math.floor(x % 16), Math.floor(y % 16))
+        );
     }
     draw() {
         let tilesInWidth = this.tilesSprite.width / 16;
