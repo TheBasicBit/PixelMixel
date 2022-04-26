@@ -3,10 +3,9 @@ import Controller from "../controller/Controller.ts";
 import Camera from "../render/Camera.ts";
 import Sprite from "../render/sprites/Sprite.ts";
 import MapData from "./MapData.ts";
+import ControlTiles from "./ControlTiles.ts";
 
 export default class Map {
-
-    barrier = 23;
 
     drawEntities: () => void;
 
@@ -78,7 +77,7 @@ export default class Map {
         let gridX = Map.toGridUnits(x);
         let gridY = Map.toGridUnits(y);
 
-        return x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight || this.containsTile(gridX, gridY, this.barrier) || this.isEmpty(gridX, gridY);
+        return x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight || this.isEmpty(gridX, gridY);
     }
 
     draw() {
@@ -89,7 +88,7 @@ export default class Map {
                 for (let y = 0; y < this.data.height; y++) {
                     let id = this.data.layers[layerId][x][y];
 
-                    if (id === -1 || (id === this.barrier && !this.controller.isKeyDown("r"))) {
+                    if (id === -1 || (ControlTiles.includes(id) && !this.controller.isKeyDown("r"))) {
                         continue;
                     }
 

@@ -217,8 +217,22 @@ class Camera {
         renderLoop();
     }
 }
+const __default = [
+    123,
+    124,
+    125,
+    139,
+    140,
+    141,
+    155,
+    156,
+    157,
+    142,
+    143,
+    158,
+    159
+];
 class Map {
-    barrier = 23;
     drawEntities;
     controller;
     camera;
@@ -265,7 +279,7 @@ class Map {
         let pixelHeight = Map.toPixelUnits(this.data.height);
         let gridX = Map.toGridUnits(x);
         let gridY = Map.toGridUnits(y);
-        return x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight || this.containsTile(gridX, gridY, this.barrier) || this.isEmpty(gridX, gridY);
+        return x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight || this.isEmpty(gridX, gridY);
     }
     draw() {
         let tilesInWidth = this.tilesSprite.width / 16;
@@ -273,7 +287,7 @@ class Map {
             for(let x = 0; x < this.data.width; x++){
                 for(let y = 0; y < this.data.height; y++){
                     let id = this.data.layers[layerId][x][y];
-                    if (id === -1 || id === this.barrier && !this.controller.isKeyDown("r")) {
+                    if (id === -1 || __default.includes(id) && !this.controller.isKeyDown("r")) {
                         continue;
                     }
                     this.tilesSprite.cut(Math.floor(id % tilesInWidth) * 16, Math.floor(id / tilesInWidth) * 16, 16, 16).drawAt(x * 16, y * 16);
