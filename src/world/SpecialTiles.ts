@@ -52,10 +52,15 @@ export default class ControlTiles {
         return 137;
     }
     
+    static get water() {
+        return 138;
+    }
+    
     static get all() {
         return [
             ...this.barrierList,
-            this.spawn
+            this.spawn,
+            this.water
         ];
     }
 }
