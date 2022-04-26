@@ -57,10 +57,14 @@ class Queue {
 class Controller {
     keysDown = [];
     mouseActions = new Queue();
+    developerMode = false;
     constructor(camera1){
         window.onkeydown = (e)=>{
             if (!e.repeat) {
                 this.keysDown.push(e.key.toLowerCase());
+                if (e.key === "Enter") {
+                    this.developerMode = !this.developerMode;
+                }
             }
         };
         window.onkeyup = (e)=>{
@@ -308,7 +312,7 @@ class Map {
             for(let x = 0; x < this.data.width; x++){
                 for(let y = 0; y < this.data.height; y++){
                     let id = this.data.layers[layerId][x][y];
-                    if (id === -1 || ControlTiles.all.includes(id) && !this.controller.isKeyDown("r")) {
+                    if (id === -1 || ControlTiles.all.includes(id) && !this.controller.developerMode) {
                         continue;
                     }
                     this.tilesSprite.cut(Math.floor(id % tilesInWidth) * 16, Math.floor(id / tilesInWidth) * 16, 16, 16).drawAt(x * 16, y * 16);

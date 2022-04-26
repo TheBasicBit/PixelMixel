@@ -12,11 +12,16 @@ export default class Controller {
 
     keysDown: string[] = [];
     mouseActions = new Queue<MouseAction>();
+    developerMode = false;
     
     constructor(camera: Camera) {
         window.onkeydown = e => {
             if (!e.repeat) {
                 this.keysDown.push(e.key.toLowerCase());
+
+                if (e.key === "Enter") {
+                    this.developerMode = !this.developerMode;
+                }
             }
         };
 
