@@ -217,22 +217,31 @@ class Camera {
         renderLoop();
     }
 }
-const __default = [
-    123,
-    124,
-    125,
-    139,
-    140,
-    141,
-    155,
-    156,
-    157,
-    142,
-    143,
-    158,
-    159,
-    137, 
-];
+class ControlTiles {
+    static get barriers() {
+        return [
+            123,
+            124,
+            125,
+            139,
+            140,
+            141,
+            155,
+            156,
+            157,
+            142,
+            143,
+            158,
+            159
+        ];
+    }
+    static get all() {
+        return [
+            ...this.barriers,
+            137, 
+        ];
+    }
+}
 class Map {
     drawEntities;
     controller;
@@ -288,7 +297,7 @@ class Map {
             for(let x = 0; x < this.data.width; x++){
                 for(let y = 0; y < this.data.height; y++){
                     let id = this.data.layers[layerId][x][y];
-                    if (id === -1 || __default.includes(id) && !this.controller.isKeyDown("r")) {
+                    if (id === -1 || ControlTiles.all.includes(id) && !this.controller.isKeyDown("r")) {
                         continue;
                     }
                     this.tilesSprite.cut(Math.floor(id % tilesInWidth) * 16, Math.floor(id / tilesInWidth) * 16, 16, 16).drawAt(x * 16, y * 16);

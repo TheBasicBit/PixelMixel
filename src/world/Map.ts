@@ -88,7 +88,7 @@ export default class Map {
                 for (let y = 0; y < this.data.height; y++) {
                     let id = this.data.layers[layerId][x][y];
 
-                    if (id === -1 || (ControlTiles.includes(id) && !this.controller.isKeyDown("r"))) {
+                    if (id === -1 || (ControlTiles.all.includes(id) && !this.controller.isKeyDown("r"))) {
                         continue;
                     }
 
