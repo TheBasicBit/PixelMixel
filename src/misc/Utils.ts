@@ -16,8 +16,12 @@ export function removeElementByValues<T>(array: T[], item: T) {
     }
 }
 
-export async function getObject(url: string) {
-    return await (await (fetch(url)
+export function getRootPath(path: string) {
+    return document.querySelector("html>head>base")?.getAttribute("href") + path;
+}
+
+export async function getObject(path: string) {
+    return await (await (fetch(getRootPath(path))
         .then(res => {
             return res.json();
         })

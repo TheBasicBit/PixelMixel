@@ -41,13 +41,13 @@ canvas.addEventListener("mousemove", event => {
 });
 
 (async () => {
-    playerSprite = await camera.getSpriteImage("/assets/images/entities/human.png");
-    mapSprite = await camera.getSpriteImage("/assets/images/tiles/map.png");
-    cursor = await camera.getSpriteImage("/assets/images/ui/cursor.png");
-    slot = await camera.getSpriteImage("/assets/images/ui/slot.png");
-    hose = await camera.getSpriteImage("/assets/images/entities/hose.png");
-    emerald = await camera.getSpriteImage("/assets/images/items/pyschoEmerald.png");
-    mapData = await getObject("/map.json");
+    playerSprite = await camera.getSpriteImage("assets/images/entities/human.png");
+    mapSprite = await camera.getSpriteImage("assets/images/tiles/map.png");
+    cursor = await camera.getSpriteImage("assets/images/ui/cursor.png");
+    slot = await camera.getSpriteImage("assets/images/ui/slot.png");
+    hose = await camera.getSpriteImage("assets/images/entities/hose.png");
+    emerald = await camera.getSpriteImage("assets/images/items/pyschoEmerald.png");
+    mapData = await getObject("map.json");
 })().then(() => {
     map = new Map(camera, mapSprite, mapData, controller, () => {
         player.draw();

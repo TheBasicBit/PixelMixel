@@ -1,4 +1,5 @@
 import SpriteImage from "./sprites/SpriteImage.ts";
+import { getRootPath } from "../misc/Utils.ts";
 
 export default class Camera {
 
@@ -37,12 +38,12 @@ export default class Camera {
         this.setCanvasSize();
     }
 
-    async getSpriteImage(url: string) {
+    async getSpriteImage(path: string) {
         return new Promise<SpriteImage>((resolve, reject) => {
             const img = new Image();
             img.onload = () => resolve(new SpriteImage(this, img));
             img.onerror = reject;
-            img.src = url;
+            img.src = getRootPath(path);
         });
     }
 
