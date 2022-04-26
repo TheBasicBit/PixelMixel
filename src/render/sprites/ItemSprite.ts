@@ -1,3 +1,5 @@
+import { getMillis } from "../../misc/Utils.ts";
+
 import Sprite from "./Sprite.ts";
 
 export default class ItemRenderer implements Sprite {
@@ -13,19 +15,9 @@ export default class ItemRenderer implements Sprite {
         this.delay = delay;
     }
 
-    private get time() {
-        let date = new Date();
-        let hour = date.getHours();
-        let min = hour * 60 + date.getMinutes();
-        let sec = min * 60 + date.getSeconds();
-        let milli = sec * 1000 + date.getMilliseconds();
-
-        return milli;
-    }
-
     private get sprite(): Sprite {
         let frames = this.animatedSprite.width / 16;
-        let frame = Math.floor(this.time / this.delay) % frames;
+        let frame = Math.floor(getMillis() / this.delay) % frames;
         
         return this.animatedSprite.cut(frame * 16, 0, 16, 16);
     }

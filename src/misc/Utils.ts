@@ -30,3 +30,13 @@ export async function getObject(path: string) {
         })
     ));
 }
+
+export function getMillis() {
+    let date = new Date();
+    let hour = date.getHours();
+    let min = hour * 60 + date.getMinutes();
+    let sec = min * 60 + date.getSeconds();
+    let milli = sec * 1000 + date.getMilliseconds();
+
+    return milli;
+}

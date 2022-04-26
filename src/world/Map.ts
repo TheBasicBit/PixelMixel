@@ -4,6 +4,7 @@ import Camera from "../render/Camera.ts";
 import Sprite from "../render/sprites/Sprite.ts";
 import MapData from "./MapData.ts";
 import SpecialTiles from "./SpecialTiles.ts";
+import { getMillis } from "../misc/Utils.ts";
 
 export default class Map {
 
@@ -93,6 +94,12 @@ export default class Map {
 
                     if (id === -1 || (SpecialTiles.all.includes(id) && !this.controller.developerMode)) {
                         continue;
+                    }
+
+                    let waterAnimation = SpecialTiles.waterTiles.waterAnimation;
+
+                    if (waterAnimation.includes(id)) {
+                        id = waterAnimation[Math.floor(getMillis() / 250) % waterAnimation.length];
                     }
 
                     this.tilesSprite.cut(Math.floor(id % tilesInWidth) * 16, Math.floor(id / tilesInWidth) * 16, 16, 16).drawAt(x * 16, y * 16);

@@ -52,15 +52,18 @@ export default class ControlTiles {
         return 137;
     }
     
-    static get water() {
-        return 138;
+    static get waterTiles() {
+        return {
+            waterFunction: 138,
+            waterAnimation: [96, 97, 98, 99]
+        };
     }
     
     static get all() {
         return [
             ...this.barrierList,
             this.spawn,
-            this.water
+            this.waterTiles.waterFunction
         ];
     }
 }

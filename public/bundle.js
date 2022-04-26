@@ -27,6 +27,14 @@ async function getObject(path) {
         console.error(err);
     });
 }
+function getMillis() {
+    let date = new Date();
+    let hour = date.getHours();
+    let min = hour * 60 + date.getMinutes();
+    let sec = min * 60 + date.getSeconds();
+    let milli = sec * 1000 + date.getMilliseconds();
+    return milli;
+}
 class Queue {
     elements = {};
     head = 0;
@@ -251,14 +259,22 @@ class ControlTiles {
     static get spawn() {
         return 137;
     }
-    static get water() {
-        return 138;
+    static get waterTiles() {
+        return {
+            waterFunction: 138,
+            waterAnimation: [
+                96,
+                97,
+                98,
+                99
+            ]
+        };
     }
     static get all() {
         return [
             ...this.barrierList,
             this.spawn,
-            this.water
+            this.waterTiles.waterFunction
         ];
     }
 }
@@ -318,6 +334,10 @@ class Map {
                     let id = this.data.layers[layerId][x][y];
                     if (id === -1 || ControlTiles.all.includes(id) && !this.controller.developerMode) {
                         continue;
+                    }
+                    let waterAnimation = ControlTiles.waterTiles.waterAnimation;
+                    if (waterAnimation.includes(id)) {
+                        id = waterAnimation[Math.floor(getMillis() / 250) % waterAnimation.length];
                     }
                     this.tilesSprite.cut(Math.floor(id % tilesInWidth) * 16, Math.floor(id / tilesInWidth) * 16, 16, 16).drawAt(x * 16, y * 16);
                 }
@@ -440,17 +460,9 @@ class ItemRenderer {
         this.animatedSprite = animatedSprite;
         this.delay = delay;
     }
-    get time() {
-        let date = new Date();
-        let hour = date.getHours();
-        let min = hour * 60 + date.getMinutes();
-        let sec = min * 60 + date.getSeconds();
-        let milli = sec * 1000 + date.getMilliseconds();
-        return milli;
-    }
     get sprite() {
         let frames = this.animatedSprite.width / 16;
-        let frame = Math.floor(this.time / this.delay) % frames;
+        let frame = Math.floor(getMillis() / this.delay) % frames;
         return this.animatedSprite.cut(frame * 16, 0, 16, 16);
     }
     drawAtUI(x, y) {
