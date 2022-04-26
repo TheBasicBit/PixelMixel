@@ -17,8 +17,11 @@ function removeElementByValues(array, item) {
         }
     }
 }
-async function getObject(url) {
-    return await await fetch(url).then((res)=>{
+function getRootPath(path) {
+    return document.querySelector("html>head>meta[base-url]")?.getAttribute("base-url") + path;
+}
+async function getObject(path) {
+    return await await fetch(getRootPath(path)).then((res)=>{
         return res.json();
     }).catch((err)=>{
         console.error(err);
@@ -196,13 +199,13 @@ class Camera {
         window.onresize = this.setCanvasSize.bind(this);
         this.setCanvasSize();
     }
-    async getSpriteImage(url) {
+    async getSpriteImage(path) {
         return new Promise((resolve, reject)=>{
             const img = new Image();
             img.onload = ()=>resolve(new SpriteImage(this, img))
             ;
             img.onerror = reject;
-            img.src = url;
+            img.src = getRootPath(path);
         });
     }
     render(renderFunction) {
@@ -448,13 +451,13 @@ canvas.addEventListener("mousemove", (event)=>{
     };
 });
 (async ()=>{
-    playerSprite = await camera.getSpriteImage("/assets/images/entities/human.png");
-    mapSprite = await camera.getSpriteImage("/assets/images/tiles/map.png");
-    cursor = await camera.getSpriteImage("/assets/images/ui/cursor.png");
-    slot = await camera.getSpriteImage("/assets/images/ui/slot.png");
-    hose = await camera.getSpriteImage("/assets/images/entities/hose.png");
-    emerald = await camera.getSpriteImage("/assets/images/items/pyschoEmerald.png");
-    mapData = await getObject("/map.json");
+    playerSprite = await camera.getSpriteImage("assets/images/entities/human.png");
+    mapSprite = await camera.getSpriteImage("assets/images/tiles/map.png");
+    cursor = await camera.getSpriteImage("assets/images/ui/cursor.png");
+    slot = await camera.getSpriteImage("assets/images/ui/slot.png");
+    hose = await camera.getSpriteImage("assets/images/entities/hose.png");
+    emerald = await camera.getSpriteImage("assets/images/items/pyschoEmerald.png");
+    mapData = await getObject("map.json");
 })().then(()=>{
     map = new Map(camera, mapSprite, mapData, controller, ()=>{
         player.draw();

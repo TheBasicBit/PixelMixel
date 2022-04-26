@@ -1,2 +1,2 @@
 @echo off
-deno bundle --config deno.jsonc src/Main.ts TheBasicBit.github.io/bundle.js
+deno bundle --config deno.jsonc src/Main.ts public/bundle.js
