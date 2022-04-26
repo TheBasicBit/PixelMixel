@@ -2,7 +2,7 @@
     "deno.enable": true,
     "deno.config": "./deno.jsonc",
 
-    "liveServer.settings.root": "/TheBasicBit.github.io/",
+    "liveServer.settings.root": "/public/",
     "liveServer.settings.wait": 1000,
     "emeraldwalk.runonsave": {
         "commands": [
