@@ -47,9 +47,6 @@ export default class Player {
         this.camera = camera;
         this.map = map;
 
-        console.log(spawn.x);
-        console.log(spawn.y);
-        
         this.camera.x = this._x = Map.toPixelUnits(spawn.x) + 8;
         this.camera.y = this._y = Map.toPixelUnits(spawn.y) + 8;
 

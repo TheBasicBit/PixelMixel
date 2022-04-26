@@ -359,8 +359,6 @@ class Player {
     constructor(camera4, sprite, map1, spawn, ...overlaySprites){
         this.camera = camera4;
         this.map = map1;
-        console.log(spawn.x);
-        console.log(spawn.y);
         this.camera.x = this._x = Map.toPixelUnits(spawn.x) + 8;
         this.camera.y = this._y = Map.toPixelUnits(spawn.y) + 8;
         for(let y = 0; y < 4; y++){

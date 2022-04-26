@@ -3,7 +3,7 @@ import Controller from "../controller/Controller.ts";
 import Camera from "../render/Camera.ts";
 import Sprite from "../render/sprites/Sprite.ts";
 import MapData from "./MapData.ts";
-import ControlTiles from "./ControlTiles.ts";
+import SpecialTiles from "./SpecialTiles.ts";
 
 export default class Map {
 
@@ -80,7 +80,7 @@ export default class Map {
             || y < 0
             || y >= Map.toPixelUnits(this.data.height)
             || this.isEmpty(gridX, gridY)
-            || this.data.layers.some(layer => ControlTiles.isBlockPointSolid(layer[gridX][gridY], Math.floor(x % 16), Math.floor(y % 16)));
+            || this.data.layers.some(layer => SpecialTiles.isBlockPointSolid(layer[gridX][gridY], Math.floor(x % 16), Math.floor(y % 16)));
     }
 
     draw() {
@@ -91,7 +91,7 @@ export default class Map {
                 for (let y = 0; y < this.data.height; y++) {
                     let id = this.data.layers[layerId][x][y];
 
-                    if (id === -1 || (ControlTiles.all.includes(id) && !this.controller.isKeyDown("r"))) {
+                    if (id === -1 || (SpecialTiles.all.includes(id) && !this.controller.isKeyDown("r"))) {
                         continue;
                     }
 
