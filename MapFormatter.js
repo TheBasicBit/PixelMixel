@@ -22,10 +22,9 @@ for (const layer of map.layers) {
 
         if (tile.tile == spawnTile) {
             spawnPoints.push({x: tile.x, y: tile.y});
-            columns[tile.x][tile.y] = -1;
-        } else {
-            columns[tile.x][tile.y] = tile.tile;
         }
+
+        columns[tile.x][tile.y] = tile.tile;
     }
 
     layers.push(columns);
