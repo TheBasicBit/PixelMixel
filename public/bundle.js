@@ -497,6 +497,7 @@ let cursorPosition = {
 };
 let hose;
 let emerald;
+let health;
 canvas.addEventListener("mousemove", (event)=>{
     cursorPosition = {
         x: event.x,
@@ -510,6 +511,7 @@ canvas.addEventListener("mousemove", (event)=>{
     slot = await camera.getSpriteImage("assets/images/ui/inventorySlot.png");
     hose = await camera.getSpriteImage("assets/images/entities/hose.png");
     emerald = await camera.getSpriteImage("assets/images/items/pyschoEmerald.png");
+    health = await camera.getSpriteImage("assets/images/ui/health.png");
     mapData = await getObject("map.json");
 })().then(()=>{
     map = new Map(camera, mapSprite, mapData, controller, ()=>{
@@ -547,10 +549,28 @@ canvas.addEventListener("mousemove", (event)=>{
     }, 10);
     camera.render(()=>{
         map.draw();
-        for(let i = -4; i <= 4; i++){
-            slot.drawAtUICentered(camera.width / 2 + i * 19, camera.height - 12);
+        for(let i2 = -4; i2 <= 4; i2++){
+            slot.drawAtUICentered(camera.width / 2 + i2 * 19, camera.height - 12);
         }
         new ItemRenderer(emerald, 100).drawAtUICentered(camera.width / 2, camera.height - 12);
+        function drawHealth(max, current) {
+            let heartWidth = health.width / 5;
+            let heartHeight = health.height;
+            let offset = 3;
+            for(let i = 0; i < current - 1; i++){
+                health.cut(0, 0, heartWidth, heartHeight).drawAtUI(offset + i * heartWidth, offset);
+            }
+            if (current === Math.floor(current)) {
+                health.cut(0, 0, heartWidth, heartHeight).drawAtUI(offset + (current - 1) * heartWidth, offset);
+            } else {
+                current = Math.floor(current * 4) / 4;
+                health.cut((4 - (current - Math.floor(current)) * 4) * heartWidth, 0, heartWidth, heartHeight).drawAtUI(offset + Math.floor(current) * heartWidth, offset);
+            }
+            for(let i1 = current === Math.floor(current) ? current : Math.floor(current) + 1; i1 < max; i1++){
+                health.cut(4 * heartWidth, 0, heartWidth, heartHeight).drawAtUI(offset + i1 * heartWidth, offset);
+            }
+        }
+        drawHealth(10, 7);
         cursor.drawAtUI(cursorPosition.x * (camera.width / canvas.clientWidth), cursorPosition.y * (camera.height / canvas.clientHeight));
     });
 });
