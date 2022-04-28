@@ -6,7 +6,7 @@ function writeJson(filePath, obj) {
     Deno.writeTextFileSync(filePath, JSON.stringify(obj));
 }
 
-const spawnTile = 137;
+const spawnTile = 3;
 
 let map = readJson("input.json");
 let layers = [];
