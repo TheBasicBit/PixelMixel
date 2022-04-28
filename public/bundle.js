@@ -144,19 +144,19 @@ var Direction;
 class ControlTiles {
     static get barriers() {
         return {
-            leftFull: 139,
-            rightFull: 141,
-            topFull: 124,
-            bottomFull: 156,
-            leftTopFull: 123,
-            leftBottomFull: 155,
-            rightTopFull: 125,
-            rightBottomFull: 157,
-            leftTop: 142,
-            leftBottom: 158,
-            rightTop: 143,
-            rightBottom: 159,
-            full: 140
+            leftFull: 16,
+            rightFull: 18,
+            topFull: 1,
+            bottomFull: 33,
+            leftTopFull: 0,
+            leftBottomFull: 32,
+            rightTopFull: 2,
+            rightBottomFull: 34,
+            leftTop: 6,
+            leftBottom: 22,
+            rightTop: 7,
+            rightBottom: 23,
+            full: 17
         };
     }
     static get barrierList() {
@@ -169,16 +169,15 @@ class ControlTiles {
         return this.barrierList.includes(tileId) && (tileId === this.barriers.leftFull && x <= 8 || tileId === this.barriers.rightFull && x > 8 || tileId === this.barriers.topFull && y <= 8 || tileId === this.barriers.bottomFull && y > 8 || tileId === this.barriers.leftTopFull && (x <= 8 || y <= 8) || tileId === this.barriers.leftBottomFull && (x <= 8 || y > 8) || tileId === this.barriers.rightTopFull && (x > 8 || y <= 8) || tileId === this.barriers.rightBottomFull && (x > 8 || y > 8) || tileId === this.barriers.leftTop && x <= 8 && y <= 8 || tileId === this.barriers.leftBottom && x <= 8 && y > 8 || tileId === this.barriers.rightTop && x > 8 && y <= 8 || tileId === this.barriers.rightBottom && x > 8 && y > 8);
     }
     static get spawn() {
-        return 137;
+        return 3;
     }
     static get waterTiles() {
         return {
-            waterFunction: 138,
+            waterFunction: 20,
             waterAnimation: [
-                96,
-                97,
-                98,
-                99
+                63,
+                79,
+                95
             ]
         };
     }

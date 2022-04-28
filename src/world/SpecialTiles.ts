@@ -5,7 +5,7 @@ export default class ControlTiles {
             leftFull: 16,
             rightFull: 18,
             topFull: 1,
-            bottomFull: 3,
+            bottomFull: 33,
 
             leftTopFull: 0,
             leftBottomFull: 32,
