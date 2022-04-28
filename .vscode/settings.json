@@ -9,7 +9,7 @@
     "emeraldwalk.runonsave": {
         "commands": [
             {
-                "match": "\\.ts$",
+                "match": "\\.(ts|cs)$",
                 "cmd": "build.bat"
             }
         ]
