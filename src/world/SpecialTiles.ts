@@ -2,22 +2,22 @@ export default class ControlTiles {
     
     static get barriers() {
         return {
-            leftFull: 139,
-            rightFull: 141,
-            topFull: 124,
-            bottomFull: 156,
+            leftFull: 16,
+            rightFull: 18,
+            topFull: 1,
+            bottomFull: 3,
 
-            leftTopFull: 123,
-            leftBottomFull: 155,
-            rightTopFull: 125,
-            rightBottomFull: 157,
+            leftTopFull: 0,
+            leftBottomFull: 32,
+            rightTopFull: 2,
+            rightBottomFull: 34,
 
-            leftTop: 142,
-            leftBottom: 158,
-            rightTop: 143,
-            rightBottom: 159,
+            leftTop: 6,
+            leftBottom: 22,
+            rightTop: 7,
+            rightBottom: 23,
 
-            full: 140
+            full: 17
         }
     }
 
@@ -49,13 +49,13 @@ export default class ControlTiles {
     }
 
     static get spawn() {
-        return 137;
+        return 3;
     }
     
     static get waterTiles() {
         return {
-            waterFunction: 138,
-            waterAnimation: [96, 97, 98, 99]
+            waterFunction: 20,
+            waterAnimation: [63, 79, 95]
         };
     }
     
