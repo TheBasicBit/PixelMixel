@@ -552,10 +552,29 @@ class Game {
         this.map?.draw(()=>{
             this.player?.draw();
         });
-        for(let i = -4; i <= 4; i++){
-            this.resources?.slot.drawAtUICentered(this.camera.width / 2 + i * 19, this.camera.height - 12);
+        for(let i2 = -4; i2 <= 4; i2++){
+            this.resources?.slot.drawAtUICentered(this.camera.width / 2 + i2 * 19, this.camera.height - 12);
         }
         new ItemRenderer(this.resources.emerald, 100).drawAtUICentered(this.camera.width / 2, this.camera.height - 12);
+        const drawHealth = (max, current)=>{
+            let health = this.resources.health;
+            let heartWidth = health.width / 5;
+            let heartHeight = health.height;
+            let offset = 3;
+            for(let i = 0; i < current - 1; i++){
+                health.cut(0, 0, heartWidth, heartHeight).drawAtUI(offset + i * heartWidth, offset);
+            }
+            if (current === Math.floor(current)) {
+                health.cut(0, 0, heartWidth, heartHeight).drawAtUI(offset + (current - 1) * heartWidth, offset);
+            } else {
+                current = Math.floor(current * 4) / 4;
+                health.cut((4 - (current - Math.floor(current)) * 4) * heartWidth, 0, heartWidth, heartHeight).drawAtUI(offset + Math.floor(current) * heartWidth, offset);
+            }
+            for(let i1 = current === Math.floor(current) ? current : Math.floor(current) + 1; i1 < max; i1++){
+                health.cut(4 * heartWidth, 0, heartWidth, heartHeight).drawAtUI(offset + i1 * heartWidth, offset);
+            }
+        };
+        drawHealth(10, 7);
         let cursorPosition = this.controller.cursorPosition;
         this.resources?.cursor.drawAtUI(cursorPosition.x * (this.camera.width / canvas.clientWidth), cursorPosition.y * (this.camera.height / canvas.clientHeight));
     }

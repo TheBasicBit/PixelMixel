@@ -46,7 +46,7 @@ export default class Game {
 
                 lastFrameTime = progress;
                 requestAnimationFrame(gameLoop);
-            }
+            };
 
             requestAnimationFrame(gameLoop);
         })();
@@ -94,8 +94,9 @@ export default class Game {
 
         new ItemSprite(this.resources!.emerald, 100).drawAtUICentered(this.camera!.width / 2, this.camera!.height - 12);
 
-        /*
-        function drawHealth(max: number, current: number) {
+        const drawHealth = (max: number, current: number) => {
+            let health = this.resources!.health!;
+
             let heartWidth = health.width / 5;
             let heartHeight = health.height;
             let offset = 3;
@@ -114,10 +115,9 @@ export default class Game {
             for (let i = (current === Math.floor(current) ? current : Math.floor(current) + 1); i < max; i++) {
                 health.cut(4 * heartWidth, 0, heartWidth, heartHeight).drawAtUI(offset + i * heartWidth, offset);
             }
-        }
+        };
 
         drawHealth(10, 7);
-        */
 
         let cursorPosition = this.controller!.cursorPosition;
         this.resources?.cursor.drawAtUI(cursorPosition.x * (this.camera!.width / canvas.clientWidth), cursorPosition.y * (this.camera!.height / canvas.clientHeight));
