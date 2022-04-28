@@ -14,6 +14,8 @@ export default class Camera {
     x = 0;
     y = 0;
 
+    deltaTime = 0;
+
     get scale() {
         return this._scale;
     }
@@ -36,25 +38,5 @@ export default class Camera {
 
         window.onresize = this.setCanvasSize.bind(this);
         this.setCanvasSize();
-    }
-
-    async getSpriteImage(path: string) {
-        return new Promise<SpriteImage>((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve(new SpriteImage(this, img));
-            img.onerror = reject;
-            img.src = getRootPath(path);
-        });
-    }
-
-    render(renderFunction: () => void) {
-        let renderLoop = () => {
-            requestAnimationFrame(renderLoop);
-            this.context.clearRect(0, 0, this.width, this.height);
-
-            renderFunction();
-        };
-
-        renderLoop();
     }
 }

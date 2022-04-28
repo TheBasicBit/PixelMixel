@@ -8,8 +8,6 @@ import { getMillis } from "../misc/Utils.ts";
 
 export default class Map {
 
-    drawEntities: () => void;
-
     controller: Controller;
     camera: Camera;
     tilesSprite: Sprite; 
@@ -21,13 +19,11 @@ export default class Map {
         return this.data.layers.length;
     }
 
-    constructor(camera: Camera, sprite: Sprite, data: MapData, controller: Controller, drawEntities: () => void) {
+    constructor(camera: Camera, sprite: Sprite, data: MapData, controller: Controller) {
         this.camera = camera;
         this.tilesSprite = sprite;
         this.data = data;
         this.controller = controller;
-
-        this.drawEntities = drawEntities;
     }
 
     static toGridUnits(value: number) {
@@ -84,7 +80,7 @@ export default class Map {
             || this.data.layers.some(layer => SpecialTiles.isBlockPointSolid(layer[gridX][gridY], Math.floor(x % 16), Math.floor(y % 16)));
     }
 
-    draw() {
+    draw(drawEntities: () => void) {
         let tilesInWidth = this.tilesSprite.width / 16;
 
         for (let layerId = this.layerCount - 1; layerId >= 0; layerId--) {
@@ -107,7 +103,7 @@ export default class Map {
             }
 
             if (this.entityLayer == layerId) {
-                this.drawEntities();
+                drawEntities();
             }
         }
 

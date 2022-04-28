@@ -1,10 +1,8 @@
-
-import { wait } from "../misc/Utils.ts";
-
 import Camera from "../render/Camera.ts";
 import Sprite from "../render/sprites/Sprite.ts";
 import Direction from "../render/Direction.ts";
 import Map from "../world/Map.ts";
+import Point from "../misc/Point.ts";
 
 export default class Player {
 
@@ -43,7 +41,7 @@ export default class Player {
         }
     }
 
-    constructor(camera: Camera, sprite: Sprite, map: Map, spawn: { x: number, y: number }, ...overlaySprites: Sprite[]) {
+    constructor(camera: Camera, sprite: Sprite, map: Map, spawn: Point, ...overlaySprites: Sprite[]) {
         this.camera = camera;
         this.map = map;
 
@@ -97,7 +95,7 @@ export default class Player {
         }
     }
 
-    async walk(direction: Direction, getSpeed: () => number, hasStopped: () => boolean) {
+    walk(direction: Direction, getSpeed: () => number, hasStopped: () => boolean) {
         if (this.isWalking) {
             return;
         }

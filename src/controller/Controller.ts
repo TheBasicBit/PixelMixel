@@ -7,12 +7,16 @@ import MouseActionType from "./MouseActionType.ts";
 import MouseAction from "./MouseAction.ts";
 import MouseClickAction from "./MouseClickAction.ts";
 import MouseWheelAction from "./MouseWheelAction.ts";
+import Point from "../misc/Point.ts";
 
 export default class Controller {
 
     keysDown: string[] = [];
-    mouseActions = new Queue<MouseAction>();
+
     developerMode = false;
+    
+    mouseActions = new Queue<MouseAction>();
+    cursorPosition: Point = { x: 0, y: 0 };
     
     constructor(camera: Camera) {
         window.onkeydown = e => {
@@ -51,6 +55,13 @@ export default class Controller {
                 up: e.deltaY < 0
             });
         };
+
+        window.addEventListener("mousemove", event => {
+            this.cursorPosition = {
+                x: event.x,
+                y: event.y
+            };
+        });
     }
 
     isKeyDown(key: string) {
