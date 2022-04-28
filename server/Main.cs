@@ -17,25 +17,35 @@ bool Contains(DirectoryInfo first, DirectoryInfo second) {
     return false;
 }
 
-var root = new DirectoryInfo("public");
-var prefix = "http://*:80/";
-Console.WriteLine("Use prefix: " + prefix);
+try {
+    var root = new DirectoryInfo(".\\public");
+    var prefix = "http://*:80/";
+    Console.WriteLine("Use prefix: " + prefix);
 
-var httpListener = new HttpListener();
-httpListener.Prefixes.Add(prefix);
-httpListener.Start();
+    var httpListener = new HttpListener();
+    httpListener.Prefixes.Add(prefix);
+    httpListener.Start();
 
-while (true) {
-    var context = await httpListener.GetContextAsync();
-    var request = context.Request;
-    var response = context.Response;
+    while (true) {
+        var context = await httpListener.GetContextAsync();
+        var request = context.Request;
+        var response = context.Response;
 
-    //if (Contains(root, )) {
+        var requestedFile = new FileInfo(Path.Combine(root.FullName, request.Url!.AbsolutePath));
+        Console.WriteLine("Request for: " + requestedFile.FullName);
+        // TODO: Path ist immer falsch und zeigt immer auf Datei in D:\.
 
-    //}
+        if (!requestedFile.Exists || !Contains(root, requestedFile.Directory!)) {
+            response.StatusCode = 404;
+            response.Close();
+            continue;
+        }
 
-    var buffer = Encoding.UTF8.GetBytes("Hello " + request.RemoteEndPoint.Address + "!");
-    response.ContentLength64 = buffer.LongLength;
-    response.OutputStream.Write(buffer);
-    response.Close();
+        var buffer = File.ReadAllBytes(requestedFile.FullName);
+        response.ContentLength64 = buffer.LongLength;
+        response.OutputStream.Write(buffer);
+        response.Close();
+    }
+} catch (Exception e) {
+    Console.WriteLine(e);
 }

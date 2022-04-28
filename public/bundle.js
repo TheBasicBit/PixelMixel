@@ -246,7 +246,7 @@ class Map {
                     }
                     let waterAnimation = ControlTiles.waterTiles.waterAnimation;
                     if (waterAnimation.includes(id)) {
-                        id = waterAnimation[Math.floor(getMillis() / 250) % waterAnimation.length];
+                        id = waterAnimation[Math.floor(getMillis() / 400) % waterAnimation.length];
                     }
                     this.tilesSprite.cut(Math.floor(id % tilesInWidth) * 16, Math.floor(id / tilesInWidth) * 16, 16, 16).drawAt(x * 16, y * 16);
                 }
