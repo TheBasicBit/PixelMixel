@@ -12,8 +12,14 @@ export default class Player {
     sprites: Sprite[][] = [];
     overlaySprites: Sprite[][][] = [];
 
-    animationState = 0;
     direction = Direction.Down;
+
+    lastMove = performance.now();
+    walkSpeed = 1;
+
+    get isMoving() {
+        return performance.now() - this.lastMove < 100;
+    }
 
     _x = 0;
     _y = 0;
@@ -104,21 +110,32 @@ export default class Player {
 
         for (let i = 0; i < difference; i++) {
             if (!performMove()) {
+                this.lastMove = performance.now();
                 return;
             }
         }
+
+        this.lastMove = performance.now();
     }
 
-    walk(direction: Direction, getSpeed: () => number) {
+    walk(direction: Direction, speed: number) {
         this.direction = direction;
-        this.move(direction, getSpeed() * this.camera.deltaTime * 0.08);
+        this.walkSpeed = speed;
+
+        this.move(direction, speed * this.camera.deltaTime * 0.08);
     }
 
     async draw() {
-        this.sprites[this.direction][this.animationState].drawAtCentered(this.x, this.y - 8);
+        let animationState = 0;
+
+        if (this.isMoving) {
+            animationState = Math.floor((performance.now() / 200 * this.walkSpeed) % 4);
+        }
+
+        this.sprites[this.direction][animationState].drawAtCentered(this.x, this.y - 8);
 
         for (const sprites of this.overlaySprites) {
-            sprites[this.direction][this.animationState].drawAtCentered(this.x, this.y - 8);
+            sprites[this.direction][animationState].drawAtCentered(this.x, this.y - 8);
         }
     }
 }

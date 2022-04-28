@@ -1,3 +1,3 @@
 import Game from "./Game.ts";
 
-new Game();
+(<any>window).game = new Game();

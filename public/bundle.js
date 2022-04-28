@@ -263,8 +263,12 @@ class Player {
     map;
     sprites = [];
     overlaySprites = [];
-    animationState = 0;
     direction = Direction.Down;
+    lastMove = performance.now();
+    walkSpeed = 1;
+    get isMoving() {
+        return performance.now() - this.lastMove < 100;
+    }
     _x = 0;
     _y = 0;
     get x() {
@@ -334,18 +338,25 @@ class Player {
         };
         for(let i = 0; i < difference; i++){
             if (!performMove()) {
+                this.lastMove = performance.now();
                 return;
             }
         }
+        this.lastMove = performance.now();
     }
-    walk(direction, getSpeed) {
+    walk(direction, speed) {
         this.direction = direction;
-        this.move(direction, getSpeed() * this.camera.deltaTime * 0.08);
+        this.walkSpeed = speed;
+        this.move(direction, speed * this.camera.deltaTime * 0.08);
     }
     async draw() {
-        this.sprites[this.direction][this.animationState].drawAtCentered(this.x, this.y - 8);
+        let animationState = 0;
+        if (this.isMoving) {
+            animationState = Math.floor(performance.now() / 200 * this.walkSpeed % 4);
+        }
+        this.sprites[this.direction][animationState].drawAtCentered(this.x, this.y - 8);
         for (const sprites of this.overlaySprites){
-            sprites[this.direction][this.animationState].drawAtCentered(this.x, this.y - 8);
+            sprites[this.direction][animationState].drawAtCentered(this.x, this.y - 8);
         }
     }
 }
@@ -514,21 +525,20 @@ class Game {
         })();
     }
     update() {
-        let getSpeed = ()=>this.controller.isKeyDown("shift") ? 2 : 1
-        ;
+        let speed = this.controller.isKeyDown("shift") ? 2 : 1;
         let getLastWalkKey = ()=>this.controller.getLastDownKeyFrom("w", "a", "s", "d")
         ;
         if (getLastWalkKey() === "w") {
-            this.player.walk(Direction.Up, getSpeed);
+            this.player.walk(Direction.Up, speed);
         }
         if (getLastWalkKey() === "a") {
-            this.player.walk(Direction.Left, getSpeed);
+            this.player.walk(Direction.Left, speed);
         }
         if (getLastWalkKey() === "s") {
-            this.player.walk(Direction.Down, getSpeed);
+            this.player.walk(Direction.Down, speed);
         }
         if (getLastWalkKey() === "d") {
-            this.player.walk(Direction.Right, getSpeed);
+            this.player.walk(Direction.Right, speed);
         }
         while(!this.controller.mouseActions.isEmpty){
             let action = this.controller.mouseActions.dequeue();
@@ -550,4 +560,4 @@ class Game {
         this.resources?.cursor.drawAtUI(cursorPosition.x * (this.camera.width / canvas.clientWidth), cursorPosition.y * (this.camera.height / canvas.clientHeight));
     }
 }
-new Game();
+window.game = new Game();
