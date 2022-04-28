@@ -95,12 +95,13 @@ export default class Game {
         new ItemSprite(this.resources!.emerald, 100).drawAtUICentered(this.camera!.width / 2, this.camera!.height - 12);
 
         const drawHealth = (max: number, current: number) => {
-            let health = this.resources!.health!;
+            current = Math.min(max, current);
 
+            let health = this.resources!.health!;
             let heartWidth = health.width / 5;
             let heartHeight = health.height;
             let offset = 3;
-
+            
             for (let i = 0; i < current - 1; i++) {
                 health.cut(0, 0, heartWidth, heartHeight).drawAtUI(offset + i * heartWidth, offset);
             }
@@ -117,7 +118,7 @@ export default class Game {
             }
         };
 
-        drawHealth(10, 7);
+        drawHealth(5, 5);
 
         let cursorPosition = this.controller!.cursorPosition;
         this.resources?.cursor.drawAtUI(cursorPosition.x * (this.camera!.width / canvas.clientWidth), cursorPosition.y * (this.camera!.height / canvas.clientHeight));
