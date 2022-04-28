@@ -6,7 +6,6 @@ import Point from "../misc/Point.ts";
 
 export default class Player {
 
-    isWalking = false;
     camera: Camera;
     map: Map;
 
@@ -28,17 +27,13 @@ export default class Player {
     }
 
     set x(value: number) {
-        if (!this.map.canWalk(value, this.y)) {
-            this._x = value;
-            this.camera.x = value;
-        }
+        this._x = value;
+        this.camera.x = value;
     }
 
     set y(value: number) {
-        if (!this.map.canWalk(this.x, value)) {
-            this._y = value;
-            this.camera.y = value;
-        }
+        this._y = value;
+        this.camera.y = value;
     }
 
     constructor(camera: Camera, sprite: Sprite, map: Map, spawn: Point, ...overlaySprites: Sprite[]) {
@@ -75,51 +70,48 @@ export default class Player {
         }
     }
 
-    modifyPosition(direction: Direction, difference: number) {
-        switch (direction) {
-            case Direction.Left:
-                this.x -= difference;
-                break;
+    move(direction: Direction, difference: number) {
+        const performMove = () => {
+            let newPosition = { x: this.x, y: this.y };
 
-            case Direction.Right:
-                this.x += difference;
-                break;
+            switch (direction) {
+                case Direction.Left:
+                    newPosition.x -= 1;
+                    break;
 
-            case Direction.Up:
-                this.y -= difference;
-                break;
-                
-            case Direction.Down:
-                this.y += difference;
-                break;
+                case Direction.Right:
+                    newPosition.x += 1;
+                    break;
+
+                case Direction.Up:
+                    newPosition.y -= 1;
+                    break;
+                    
+                case Direction.Down:
+                    newPosition.y += 1;
+                    break;
+            }
+
+            if (!this.map.canWalk(newPosition.x, newPosition.y)) {
+                this.x = newPosition.x;
+                this.y = newPosition.y;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        for (let i = 0; i < difference; i++) {
+            if (!performMove()) {
+                return;
+            }
         }
     }
 
-    walk(direction: Direction, getSpeed: () => number, hasStopped: () => boolean) {
-        if (this.isWalking) {
-            return;
-        }
-
-        this.isWalking = true;
+    walk(direction: Direction, getSpeed: () => number) {
         this.direction = direction;
-
-        for (let i = 0; i < 16; i++) {
-            await wait(10 / getSpeed());
-
-            if (hasStopped()) {
-                this.animationState = 0;
-                this.isWalking = false;
-                return;
-            }
-
-            if (i % 8 == 0) {
-                this.animationState = (this.animationState + 1) % 4;
-            }
-
-            this.modifyPosition(direction, 1);
-        }
-        
-        this.isWalking = false;
+        this.move(direction, getSpeed() * this.camera.deltaTime * 0.08);
     }
 
     async draw() {

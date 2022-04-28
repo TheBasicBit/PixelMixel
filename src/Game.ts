@@ -57,19 +57,19 @@ export default class Game {
         let getLastWalkKey = () => this.controller!.getLastDownKeyFrom("w", "a", "s", "d");
 
         if (getLastWalkKey() === "w") {
-            this.player!.walk(Direction.Up, getSpeed, () => getLastWalkKey() !== "w");
+            this.player!.walk(Direction.Up, getSpeed);
         }
     
         if (getLastWalkKey() === "a") {
-            this.player!.walk(Direction.Left, getSpeed, () => getLastWalkKey() !== "a");
+            this.player!.walk(Direction.Left, getSpeed);
         }
     
         if (getLastWalkKey() === "s") {
-            this.player!.walk(Direction.Down, getSpeed, () => getLastWalkKey() !== "s");
+            this.player!.walk(Direction.Down, getSpeed);
         }
     
         if (getLastWalkKey() === "d") {
-            this.player!.walk(Direction.Right, getSpeed, () => getLastWalkKey() !== "d");
+            this.player!.walk(Direction.Right, getSpeed);
         }
 
         while (!this.controller!.mouseActions.isEmpty) {

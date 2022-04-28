@@ -259,7 +259,6 @@ class Map {
     }
 }
 class Player {
-    isWalking = false;
     camera;
     map;
     sprites = [];
@@ -275,16 +274,12 @@ class Player {
         return this._y;
     }
     set x(value) {
-        if (!this.map.canWalk(value, this.y)) {
-            this._x = value;
-            this.camera.x = value;
-        }
+        this._x = value;
+        this.camera.x = value;
     }
     set y(value) {
-        if (!this.map.canWalk(this.x, value)) {
-            this._y = value;
-            this.camera.y = value;
-        }
+        this._y = value;
+        this.camera.y = value;
     }
     constructor(camera, sprite, map, spawn, ...overlaySprites){
         this.camera = camera;
@@ -310,40 +305,42 @@ class Player {
             this.overlaySprites.push(overlaySpritesSprite);
         }
     }
-    modifyPosition(direction, difference) {
-        switch(direction){
-            case Direction.Left:
-                this.x -= difference;
-                break;
-            case Direction.Right:
-                this.x += difference;
-                break;
-            case Direction.Up:
-                this.y -= difference;
-                break;
-            case Direction.Down:
-                this.y += difference;
-                break;
-        }
-    }
-    async walk(direction, getSpeed, hasStopped) {
-        if (this.isWalking) {
-            return;
-        }
-        this.isWalking = true;
-        this.direction = direction;
-        for(let i = 0; i < 16; i++){
-            if (hasStopped()) {
-                this.animationState = 0;
-                this.isWalking = false;
+    move(direction, difference) {
+        const performMove = ()=>{
+            let newPosition = {
+                x: this.x,
+                y: this.y
+            };
+            switch(direction){
+                case Direction.Left:
+                    newPosition.x -= 1;
+                    break;
+                case Direction.Right:
+                    newPosition.x += 1;
+                    break;
+                case Direction.Up:
+                    newPosition.y -= 1;
+                    break;
+                case Direction.Down:
+                    newPosition.y += 1;
+                    break;
+            }
+            if (!this.map.canWalk(newPosition.x, newPosition.y)) {
+                this.x = newPosition.x;
+                this.y = newPosition.y;
+                return true;
+            }
+            return false;
+        };
+        for(let i = 0; i < difference; i++){
+            if (!performMove()) {
                 return;
             }
-            if (i % 8 == 0) {
-                this.animationState = (this.animationState + 1) % 4;
-            }
-            this.modifyPosition(direction, 1);
         }
-        this.isWalking = false;
+    }
+    walk(direction, getSpeed) {
+        this.direction = direction;
+        this.move(direction, getSpeed() * this.camera.deltaTime * 0.08);
     }
     async draw() {
         this.sprites[this.direction][this.animationState].drawAtCentered(this.x, this.y - 8);
@@ -522,20 +519,16 @@ class Game {
         let getLastWalkKey = ()=>this.controller.getLastDownKeyFrom("w", "a", "s", "d")
         ;
         if (getLastWalkKey() === "w") {
-            this.player.walk(Direction.Up, getSpeed, ()=>getLastWalkKey() !== "w"
-            );
+            this.player.walk(Direction.Up, getSpeed);
         }
         if (getLastWalkKey() === "a") {
-            this.player.walk(Direction.Left, getSpeed, ()=>getLastWalkKey() !== "a"
-            );
+            this.player.walk(Direction.Left, getSpeed);
         }
         if (getLastWalkKey() === "s") {
-            this.player.walk(Direction.Down, getSpeed, ()=>getLastWalkKey() !== "s"
-            );
+            this.player.walk(Direction.Down, getSpeed);
         }
         if (getLastWalkKey() === "d") {
-            this.player.walk(Direction.Right, getSpeed, ()=>getLastWalkKey() !== "d"
-            );
+            this.player.walk(Direction.Right, getSpeed);
         }
         while(!this.controller.mouseActions.isEmpty){
             let action = this.controller.mouseActions.dequeue();
