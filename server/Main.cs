@@ -7,7 +7,7 @@ using System.IO;
 
 bool Contains(DirectoryInfo first, DirectoryInfo second) {
     while (second.Parent != null) {
-        if (second.Parent.FullName == first.FullName) {
+        if (second.FullName == first.FullName) {
             return true;
         } else {
             second = second.Parent;
@@ -18,7 +18,7 @@ bool Contains(DirectoryInfo first, DirectoryInfo second) {
 }
 
 try {
-    var root = new DirectoryInfo(".\\public");
+    var root = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "public"));
     var prefix = "http://*:80/";
     Console.WriteLine("Use prefix: " + prefix);
 
@@ -31,9 +31,10 @@ try {
         var request = context.Request;
         var response = context.Response;
 
-        var requestedFile = new FileInfo(Path.Combine(root.FullName, request.Url!.AbsolutePath));
+        var requestPath = Path.Combine(root.FullName, request.Url!.AbsolutePath.Substring(1));
+
+        var requestedFile = new FileInfo(Directory.Exists(requestPath) ? Path.Combine(requestPath, "index.html") : requestPath);
         Console.WriteLine("Request for: " + requestedFile.FullName);
-        // TODO: Path ist immer falsch und zeigt immer auf Datei in D:\.
 
         if (!requestedFile.Exists || !Contains(root, requestedFile.Directory!)) {
             response.StatusCode = 404;
