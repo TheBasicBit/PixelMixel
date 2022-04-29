@@ -434,7 +434,7 @@ class CuttedSprite {
     }
 }
 function getUrl(path) {
-    return document.querySelector("html>head>meta[base-url]")?.getAttribute("base-url") + path;
+    return `${location.protocol}//${location.host}/${path}`;
 }
 async function getObjectFromJson(path) {
     return await await fetch(getUrl(path)).then((res)=>{
