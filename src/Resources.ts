@@ -3,7 +3,7 @@ import SpriteImage from "./render/sprites/SpriteImage.ts";
 import MapData from "./world/MapData.ts";
 
 function getUrl(path: string) {
-    return document.querySelector("html>head>meta[base-url]")?.getAttribute("base-url") + path;
+    return `${location.protocol}//${location.host}/${path}`;
 }
 
 async function getObjectFromJson(path: string) {
