@@ -105,6 +105,14 @@ class Controller {
         return null;
     }
 }
+var Direction;
+(function(Direction1) {
+    Direction1[Direction1["Left"] = 3] = "Left";
+    Direction1[Direction1["Right"] = 1] = "Right";
+    Direction1[Direction1["Up"] = 2] = "Up";
+    Direction1[Direction1["Down"] = 0] = "Down";
+    Direction1[Direction1["None"] = 4] = "None";
+})(Direction || (Direction = {}));
 class Camera {
     _scale = 0;
     canvas;
@@ -133,14 +141,6 @@ class Camera {
         this.setCanvasSize();
     }
 }
-var Direction;
-(function(Direction1) {
-    Direction1[Direction1["Left"] = 3] = "Left";
-    Direction1[Direction1["Right"] = 1] = "Right";
-    Direction1[Direction1["Up"] = 2] = "Up";
-    Direction1[Direction1["Down"] = 0] = "Down";
-    Direction1[Direction1["None"] = 4] = "None";
-})(Direction || (Direction = {}));
 class ControlTiles {
     static get barriers() {
         return {
@@ -500,6 +500,7 @@ class Game {
     map;
     player;
     resources;
+    networkManager;
     constructor(){
         console.log("Hi");
         (async ()=>{
