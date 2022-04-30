@@ -1,7 +1,8 @@
-import Controller from "./controller/Controller.ts";
 import MouseWheelAction from "./controller/MouseWheelAction.ts";
-import Camera from "./render/Camera.ts";
+import NetworkManager from "./network/NetworkManager.ts";
+import Controller from "./controller/Controller.ts";
 import Direction from "./render/Direction.ts";
+import Camera from "./render/Camera.ts";
 import Player from "./world/Player.ts";
 import Map from "./world/Map.ts";
 
@@ -17,6 +18,7 @@ export default class Game {
     player?: Player;
 
     resources?: Resources;
+    networkManager?: NetworkManager;
 
     constructor() {
         console.log("Hi");
@@ -32,6 +34,9 @@ export default class Game {
             let spawnPoints = this.map.data.spawnPoints;
             let randomSpwanIndex = Math.floor(Math.random() * spawnPoints.length);
             this.player = new Player(this.camera, this.resources.playerSprite, this.map, spawnPoints[randomSpwanIndex]);
+
+            // this.networkManager = new NetworkManager();
+            // await this.networkManager.connect();
 
             let lastFrameTime = 0;
 
