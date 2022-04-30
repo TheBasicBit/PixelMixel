@@ -31,9 +31,16 @@ try {
         var request = context.Request;
         var response = context.Response;
 
-        var requestPath = Path.Combine(root.FullName, request.Url!.AbsolutePath.Substring(1));
+        var requestPath = request.Url!.AbsolutePath.Substring(1);
 
-        var requestedFile = new FileInfo(Directory.Exists(requestPath) ? Path.Combine(requestPath, "index.html") : requestPath);
+        if (requestPath == "client" && request.IsWebSocketRequest) {
+            new Client(await context.AcceptWebSocketAsync("gameClient"));
+            continue;
+        }
+
+        var requestLocalPath = Path.Combine(root.FullName, requestPath);
+
+        var requestedFile = new FileInfo(Directory.Exists(requestLocalPath) ? Path.Combine(requestLocalPath, "index.html") : requestLocalPath);
         Console.WriteLine("Request for: " + requestedFile.FullName);
 
         if (!requestedFile.Exists || !Contains(root, requestedFile.Directory!)) {

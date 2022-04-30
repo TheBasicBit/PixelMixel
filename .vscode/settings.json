@@ -24,6 +24,7 @@
         "**/Thumbs.db": true,
 
         "server/bin/**": true,
-        "server/obj/**": true
+        "server/obj/**": true,
+        "**/*.csproj": true
     }
 }
