@@ -258,6 +258,7 @@ class Map {
     }
 }
 class Player {
+    game;
     camera;
     map;
     sprites = [];
@@ -284,9 +285,10 @@ class Player {
         this._y = value;
         this.camera.y = value;
     }
-    constructor(camera, sprite, map, spawn, ...overlaySprites){
-        this.camera = camera;
-        this.map = map;
+    constructor(game, sprite, spawn, ...overlaySprites){
+        this.game = game;
+        this.camera = game.camera;
+        this.map = game.map;
         this.camera.x = this._x = Map.toPixelUnits(spawn.x) + 8;
         this.camera.y = this._y = Map.toPixelUnits(spawn.y) + 8;
         for(let y = 0; y < 4; y++){
@@ -342,6 +344,7 @@ class Player {
             }
         }
         this.lastMove = performance.now();
+        this.game.networkManager?.updatePosition(this.x, this.y);
     }
     walk(direction, speed) {
         this.direction = direction;
@@ -502,7 +505,6 @@ class Game {
     resources;
     networkManager;
     constructor(){
-        console.log("Hi");
         (async ()=>{
             const camera = this.camera = new Camera(document.querySelector("canvas"), 3);
             this.controller = new Controller(this.camera);
@@ -510,7 +512,7 @@ class Game {
             this.map = new Map(this.camera, this.resources.mapSprite, this.resources.mapData, this.controller);
             let spawnPoints = this.map.data.spawnPoints;
             let randomSpwanIndex = Math.floor(Math.random() * spawnPoints.length);
-            this.player = new Player(this.camera, this.resources.playerSprite, this.map, spawnPoints[randomSpwanIndex]);
+            this.player = new Player(this, this.resources.playerSprite, spawnPoints[randomSpwanIndex]);
             let lastFrameTime = 0;
             const gameLoop = (progress)=>{
                 camera.deltaTime = progress - lastFrameTime;
