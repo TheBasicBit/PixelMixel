@@ -16,13 +16,12 @@ export default class Game {
 
     map?: Map;
     player?: Player;
+    otherPlayers: { [id: string]: Player } = {};
 
     resources?: Resources;
     networkManager?: NetworkManager;
 
     constructor() {
-        console.log("Hi");
-
         (async () => {
             const camera = this.camera = new Camera(<HTMLCanvasElement>document.querySelector("canvas"), 3);
             this.controller = new Controller(this.camera);
@@ -33,10 +32,10 @@ export default class Game {
             
             let spawnPoints = this.map.data.spawnPoints;
             let randomSpwanIndex = Math.floor(Math.random() * spawnPoints.length);
-            this.player = new Player(this.camera, this.resources.playerSprite, this.map, spawnPoints[randomSpwanIndex]);
+            this.player = new Player(this, this.resources.playerSprite, spawnPoints[randomSpwanIndex], true);
 
-            // this.networkManager = new NetworkManager();
-            // await this.networkManager.connect();
+            this.networkManager = new NetworkManager(this);
+            await this.networkManager.connect();
 
             let lastFrameTime = 0;
 
@@ -90,7 +89,9 @@ export default class Game {
         const canvas = this.camera!.canvas;
 
         this.map?.draw(() => {
-            this.player?.draw();
+            for (const player of [...Object.values(this.otherPlayers), this.player!].sort((a, b) => a.y - b.y)) {
+                player.draw();
+            }
         });
 
         for (let i = -4; i <= 4; i++) {

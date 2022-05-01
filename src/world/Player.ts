@@ -3,9 +3,11 @@ import Sprite from "../render/sprites/Sprite.ts";
 import Direction from "../render/Direction.ts";
 import Map from "../world/Map.ts";
 import Point from "../misc/Point.ts";
+import Game from "../Game.ts";
 
 export default class Player {
 
+    game: Game;
     camera: Camera;
     map: Map;
 
@@ -16,6 +18,8 @@ export default class Player {
 
     lastMove = performance.now();
     walkSpeed = 1;
+
+    isFirstPlayer = false;
 
     get isMoving() {
         return performance.now() - this.lastMove < 100;
@@ -34,20 +38,30 @@ export default class Player {
 
     set x(value: number) {
         this._x = value;
-        this.camera.x = value;
+
+        if (this.isFirstPlayer) {
+            this.camera.x = value;
+        }
     }
 
     set y(value: number) {
         this._y = value;
-        this.camera.y = value;
+
+        if (this.isFirstPlayer) {
+            this.camera.y = value;
+        }
     }
 
-    constructor(camera: Camera, sprite: Sprite, map: Map, spawn: Point, ...overlaySprites: Sprite[]) {
-        this.camera = camera;
-        this.map = map;
+    constructor(game: Game, sprite: Sprite, spawn: Point, isFirstPlayer: boolean, ...overlaySprites: Sprite[]) {
+        this.game = game;
+        this.camera = game.camera!;
+        this.map = game.map!;
+        this.isFirstPlayer = isFirstPlayer;
 
-        this.camera.x = this._x = Map.toPixelUnits(spawn.x) + 8;
-        this.camera.y = this._y = Map.toPixelUnits(spawn.y) + 8;
+        if (isFirstPlayer) {
+            this.camera.x = this._x = Map.toPixelUnits(spawn.x) + 8;
+            this.camera.y = this._y = Map.toPixelUnits(spawn.y) + 8;
+        }
 
         for (let y = 0; y < 4; y++) {
             let row: Sprite[] = [];
@@ -123,6 +137,10 @@ export default class Player {
         this.walkSpeed = speed;
 
         this.move(direction, speed * this.camera.deltaTime * 0.08);
+        
+        if (this.isFirstPlayer) {
+            this.game.networkManager?.sendWalk(direction, speed, this.x, this.y);
+        }
     }
 
     async draw() {

@@ -2,6 +2,76 @@
 // deno-lint-ignore-file
 // This code was bundled using `deno bundle` and it's not recommended to edit it manually
 
+class PacketClientWalk {
+    packetType;
+    direction;
+    speed;
+    x;
+    y;
+    constructor(direction, speed, x, y){
+        this.packetType = "PacketClientWalk";
+        this.direction = direction;
+        this.speed = speed;
+        this.x = x;
+        this.y = y;
+    }
+}
+var Direction;
+(function(Direction1) {
+    Direction1[Direction1["Left"] = 3] = "Left";
+    Direction1[Direction1["Right"] = 1] = "Right";
+    Direction1[Direction1["Up"] = 2] = "Up";
+    Direction1[Direction1["Down"] = 0] = "Down";
+    Direction1[Direction1["None"] = 4] = "None";
+})(Direction || (Direction = {}));
+class ControlTiles {
+    static get barriers() {
+        return {
+            leftFull: 16,
+            rightFull: 18,
+            topFull: 1,
+            bottomFull: 33,
+            leftTopFull: 0,
+            leftBottomFull: 32,
+            rightTopFull: 2,
+            rightBottomFull: 34,
+            leftTop: 6,
+            leftBottom: 22,
+            rightTop: 7,
+            rightBottom: 23,
+            full: 17
+        };
+    }
+    static get barrierList() {
+        return Object.values(this.barriers);
+    }
+    static isBlockPointSolid(tileId, x, y) {
+        if (tileId === this.barriers.full) {
+            return true;
+        }
+        return this.barrierList.includes(tileId) && (tileId === this.barriers.leftFull && x <= 8 || tileId === this.barriers.rightFull && x > 8 || tileId === this.barriers.topFull && y <= 8 || tileId === this.barriers.bottomFull && y > 8 || tileId === this.barriers.leftTopFull && (x <= 8 || y <= 8) || tileId === this.barriers.leftBottomFull && (x <= 8 || y > 8) || tileId === this.barriers.rightTopFull && (x > 8 || y <= 8) || tileId === this.barriers.rightBottomFull && (x > 8 || y > 8) || tileId === this.barriers.leftTop && x <= 8 && y <= 8 || tileId === this.barriers.leftBottom && x <= 8 && y > 8 || tileId === this.barriers.rightTop && x > 8 && y <= 8 || tileId === this.barriers.rightBottom && x > 8 && y > 8);
+    }
+    static get spawn() {
+        return 3;
+    }
+    static get waterTiles() {
+        return {
+            waterFunction: 20,
+            waterAnimation: [
+                63,
+                79,
+                95
+            ]
+        };
+    }
+    static get all() {
+        return [
+            ...this.barrierList,
+            this.spawn,
+            this.waterTiles.waterFunction
+        ];
+    }
+}
 function removeElementByValues(array, item) {
     var index = array.indexOf(item);
     if (index !== -1) {
@@ -18,6 +88,242 @@ function getMillis() {
     let sec = min * 60 + date.getSeconds();
     let milli = sec * 1000 + date.getMilliseconds();
     return milli;
+}
+class Map {
+    controller;
+    camera;
+    tilesSprite;
+    data;
+    entityLayer = 1;
+    get layerCount() {
+        return this.data.layers.length;
+    }
+    constructor(camera, sprite, data, controller){
+        this.camera = camera;
+        this.tilesSprite = sprite;
+        this.data = data;
+        this.controller = controller;
+    }
+    static toGridUnits(value) {
+        return Math.floor(value / 16);
+    }
+    static toPixelUnits(value) {
+        return value * 16;
+    }
+    containsTile(x, y, id) {
+        for(let i = 0; i < this.layerCount; i++){
+            if (this.data.layers[i][x][y] === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    isEmpty(x, y) {
+        for(let i = 0; i < this.layerCount; i++){
+            if (this.data.layers[i][x][y] !== -1) {
+                return false;
+            }
+        }
+        return true;
+    }
+    canWalk(x, y) {
+        return this.isSolid(x, y) || this.isSolid(x + 6, y) || this.isSolid(x - 6, y) || this.isSolid(x, y + 6) || this.isSolid(x, y - 6) || this.isSolid(x - 6, y + 6) || this.isSolid(x - 6, y - 6) || this.isSolid(x + 6, y + 6) || this.isSolid(x + 6, y - 6);
+    }
+    isSolid(x, y) {
+        let gridX = Map.toGridUnits(x);
+        let gridY = Map.toGridUnits(y);
+        return x < 0 || x >= Map.toPixelUnits(this.data.width) || y < 0 || y >= Map.toPixelUnits(this.data.height) || this.isEmpty(gridX, gridY) || this.data.layers.some((layer)=>ControlTiles.isBlockPointSolid(layer[gridX][gridY], Math.floor(x % 16), Math.floor(y % 16))
+        );
+    }
+    draw(drawEntities) {
+        let tilesInWidth = this.tilesSprite.width / 16;
+        for(let layerId = this.layerCount - 1; layerId >= 0; layerId--){
+            for(let x = 0; x < this.data.width; x++){
+                for(let y = 0; y < this.data.height; y++){
+                    let id = this.data.layers[layerId][x][y];
+                    if (id === -1 || ControlTiles.all.includes(id) && !this.controller.developerMode) {
+                        continue;
+                    }
+                    let waterAnimation = ControlTiles.waterTiles.waterAnimation;
+                    if (waterAnimation.includes(id)) {
+                        id = waterAnimation[Math.floor(getMillis() / 400) % waterAnimation.length];
+                    }
+                    this.tilesSprite.cut(Math.floor(id % tilesInWidth) * 16, Math.floor(id / tilesInWidth) * 16, 16, 16).drawAt(x * 16, y * 16);
+                }
+            }
+            if (this.entityLayer == layerId) {
+                drawEntities();
+            }
+        }
+    }
+}
+class Player {
+    game;
+    camera;
+    map;
+    sprites = [];
+    overlaySprites = [];
+    direction = Direction.Down;
+    lastMove = performance.now();
+    walkSpeed = 1;
+    isFirstPlayer = false;
+    get isMoving() {
+        return performance.now() - this.lastMove < 100;
+    }
+    _x = 0;
+    _y = 0;
+    get x() {
+        return this._x;
+    }
+    get y() {
+        return this._y;
+    }
+    set x(value) {
+        this._x = value;
+        if (this.isFirstPlayer) {
+            this.camera.x = value;
+        }
+    }
+    set y(value) {
+        this._y = value;
+        if (this.isFirstPlayer) {
+            this.camera.y = value;
+        }
+    }
+    constructor(game, sprite, spawn, isFirstPlayer, ...overlaySprites){
+        this.game = game;
+        this.camera = game.camera;
+        this.map = game.map;
+        this.isFirstPlayer = isFirstPlayer;
+        if (isFirstPlayer) {
+            this.camera.x = this._x = Map.toPixelUnits(spawn.x) + 8;
+            this.camera.y = this._y = Map.toPixelUnits(spawn.y) + 8;
+        }
+        for(let y = 0; y < 4; y++){
+            let row = [];
+            for(let x = 0; x < 4; x++){
+                row.push(sprite.cut(x * 16, y * 32, 16, 32));
+            }
+            this.sprites.push(row);
+        }
+        for (let overlaySprite of overlaySprites){
+            let overlaySpritesSprite = [];
+            for(let y = 0; y < 4; y++){
+                let row = [];
+                for(let x = 0; x < 4; x++){
+                    row.push(overlaySprite.cut(x * 16, y * 32, 16, 32));
+                }
+                overlaySpritesSprite.push(row);
+            }
+            this.overlaySprites.push(overlaySpritesSprite);
+        }
+    }
+    move(direction, difference) {
+        const performMove = ()=>{
+            let newPosition = {
+                x: this.x,
+                y: this.y
+            };
+            switch(direction){
+                case Direction.Left:
+                    newPosition.x -= 1;
+                    break;
+                case Direction.Right:
+                    newPosition.x += 1;
+                    break;
+                case Direction.Up:
+                    newPosition.y -= 1;
+                    break;
+                case Direction.Down:
+                    newPosition.y += 1;
+                    break;
+            }
+            if (!this.map.canWalk(newPosition.x, newPosition.y)) {
+                this.x = newPosition.x;
+                this.y = newPosition.y;
+                return true;
+            }
+            return false;
+        };
+        for(let i = 0; i < difference; i++){
+            if (!performMove()) {
+                this.lastMove = performance.now();
+                return;
+            }
+        }
+        this.lastMove = performance.now();
+    }
+    walk(direction, speed) {
+        this.direction = direction;
+        this.walkSpeed = speed;
+        this.move(direction, speed * this.camera.deltaTime * 0.08);
+        if (this.isFirstPlayer) {
+            this.game.networkManager?.sendWalk(direction, speed, this.x, this.y);
+        }
+    }
+    async draw() {
+        let animationState = 0;
+        if (this.isMoving) {
+            animationState = Math.floor(performance.now() / 200 * this.walkSpeed % 4);
+        }
+        this.sprites[this.direction][animationState].drawAtCentered(this.x, this.y - 8);
+        for (const sprites of this.overlaySprites){
+            sprites[this.direction][animationState].drawAtCentered(this.x, this.y - 8);
+        }
+    }
+}
+class NetworkManager {
+    game;
+    webSocket;
+    constructor(game){
+        this.game = game;
+    }
+    connect() {
+        return new Promise((resolve, reject)=>{
+            this.webSocket = new WebSocket(`${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/client`, "gameClient");
+            this.webSocket.onopen = function() {
+                resolve();
+            };
+            this.webSocket.onerror = function(error) {
+                reject(error);
+            };
+            this.webSocket.onmessage = (e)=>{
+                this.onPacket(JSON.parse(e.data));
+            };
+        });
+    }
+    onPacket(packet) {
+        switch(packet.packetType){
+            case "PacketServerSpawn":
+                let packetServerSpawn = packet;
+                this.game.otherPlayers[packetServerSpawn.entityId] = new Player(this.game, this.game.resources.playerSprite, {
+                    x: packetServerSpawn.x,
+                    y: packetServerSpawn.y
+                }, false);
+                break;
+            case "PacketServerDespawn":
+                let packetServerDespawn = packet;
+                delete this.game.otherPlayers[packetServerDespawn.entityId];
+                break;
+            case "PacketServerEntityWalk":
+                let packetServerEntityWalk = packet;
+                let entity = this.game.otherPlayers[packetServerEntityWalk.entityId];
+                entity.walk(packetServerEntityWalk.direction, packetServerEntityWalk.speed);
+                if (entity.x !== packetServerEntityWalk.x) {
+                    entity.x = packetServerEntityWalk.x;
+                }
+                if (entity.y !== packetServerEntityWalk.y) {
+                    entity.y = packetServerEntityWalk.y;
+                }
+                break;
+        }
+    }
+    send(packet) {
+        this.webSocket?.send(JSON.stringify(packet));
+    }
+    sendWalk(direction, speed, x, y) {
+        this.send(new PacketClientWalk(direction, speed, x, y));
+    }
 }
 class Queue {
     elements = {};
@@ -105,14 +411,6 @@ class Controller {
         return null;
     }
 }
-var Direction;
-(function(Direction1) {
-    Direction1[Direction1["Left"] = 3] = "Left";
-    Direction1[Direction1["Right"] = 1] = "Right";
-    Direction1[Direction1["Up"] = 2] = "Up";
-    Direction1[Direction1["Down"] = 0] = "Down";
-    Direction1[Direction1["None"] = 4] = "None";
-})(Direction || (Direction = {}));
 class Camera {
     _scale = 0;
     canvas;
@@ -139,227 +437,6 @@ class Camera {
         this.context = canvas.getContext("2d");
         window.onresize = this.setCanvasSize.bind(this);
         this.setCanvasSize();
-    }
-}
-class ControlTiles {
-    static get barriers() {
-        return {
-            leftFull: 16,
-            rightFull: 18,
-            topFull: 1,
-            bottomFull: 33,
-            leftTopFull: 0,
-            leftBottomFull: 32,
-            rightTopFull: 2,
-            rightBottomFull: 34,
-            leftTop: 6,
-            leftBottom: 22,
-            rightTop: 7,
-            rightBottom: 23,
-            full: 17
-        };
-    }
-    static get barrierList() {
-        return Object.values(this.barriers);
-    }
-    static isBlockPointSolid(tileId, x, y) {
-        if (tileId === this.barriers.full) {
-            return true;
-        }
-        return this.barrierList.includes(tileId) && (tileId === this.barriers.leftFull && x <= 8 || tileId === this.barriers.rightFull && x > 8 || tileId === this.barriers.topFull && y <= 8 || tileId === this.barriers.bottomFull && y > 8 || tileId === this.barriers.leftTopFull && (x <= 8 || y <= 8) || tileId === this.barriers.leftBottomFull && (x <= 8 || y > 8) || tileId === this.barriers.rightTopFull && (x > 8 || y <= 8) || tileId === this.barriers.rightBottomFull && (x > 8 || y > 8) || tileId === this.barriers.leftTop && x <= 8 && y <= 8 || tileId === this.barriers.leftBottom && x <= 8 && y > 8 || tileId === this.barriers.rightTop && x > 8 && y <= 8 || tileId === this.barriers.rightBottom && x > 8 && y > 8);
-    }
-    static get spawn() {
-        return 3;
-    }
-    static get waterTiles() {
-        return {
-            waterFunction: 20,
-            waterAnimation: [
-                63,
-                79,
-                95
-            ]
-        };
-    }
-    static get all() {
-        return [
-            ...this.barrierList,
-            this.spawn,
-            this.waterTiles.waterFunction
-        ];
-    }
-}
-class Map {
-    controller;
-    camera;
-    tilesSprite;
-    data;
-    entityLayer = 1;
-    get layerCount() {
-        return this.data.layers.length;
-    }
-    constructor(camera, sprite, data, controller){
-        this.camera = camera;
-        this.tilesSprite = sprite;
-        this.data = data;
-        this.controller = controller;
-    }
-    static toGridUnits(value) {
-        return Math.floor(value / 16);
-    }
-    static toPixelUnits(value) {
-        return value * 16;
-    }
-    containsTile(x, y, id) {
-        for(let i = 0; i < this.layerCount; i++){
-            if (this.data.layers[i][x][y] === id) {
-                return true;
-            }
-        }
-        return false;
-    }
-    isEmpty(x, y) {
-        for(let i = 0; i < this.layerCount; i++){
-            if (this.data.layers[i][x][y] !== -1) {
-                return false;
-            }
-        }
-        return true;
-    }
-    canWalk(x, y) {
-        return this.isSolid(x, y) || this.isSolid(x + 6, y) || this.isSolid(x - 6, y) || this.isSolid(x, y + 6) || this.isSolid(x, y - 6) || this.isSolid(x - 6, y + 6) || this.isSolid(x - 6, y - 6) || this.isSolid(x + 6, y + 6) || this.isSolid(x + 6, y - 6);
-    }
-    isSolid(x, y) {
-        let gridX = Map.toGridUnits(x);
-        let gridY = Map.toGridUnits(y);
-        return x < 0 || x >= Map.toPixelUnits(this.data.width) || y < 0 || y >= Map.toPixelUnits(this.data.height) || this.isEmpty(gridX, gridY) || this.data.layers.some((layer)=>ControlTiles.isBlockPointSolid(layer[gridX][gridY], Math.floor(x % 16), Math.floor(y % 16))
-        );
-    }
-    draw(drawEntities) {
-        let tilesInWidth = this.tilesSprite.width / 16;
-        for(let layerId = this.layerCount - 1; layerId >= 0; layerId--){
-            for(let x = 0; x < this.data.width; x++){
-                for(let y = 0; y < this.data.height; y++){
-                    let id = this.data.layers[layerId][x][y];
-                    if (id === -1 || ControlTiles.all.includes(id) && !this.controller.developerMode) {
-                        continue;
-                    }
-                    let waterAnimation = ControlTiles.waterTiles.waterAnimation;
-                    if (waterAnimation.includes(id)) {
-                        id = waterAnimation[Math.floor(getMillis() / 400) % waterAnimation.length];
-                    }
-                    this.tilesSprite.cut(Math.floor(id % tilesInWidth) * 16, Math.floor(id / tilesInWidth) * 16, 16, 16).drawAt(x * 16, y * 16);
-                }
-            }
-            if (this.entityLayer == layerId) {
-                drawEntities();
-            }
-        }
-    }
-}
-class Player {
-    game;
-    camera;
-    map;
-    sprites = [];
-    overlaySprites = [];
-    direction = Direction.Down;
-    lastMove = performance.now();
-    walkSpeed = 1;
-    get isMoving() {
-        return performance.now() - this.lastMove < 100;
-    }
-    _x = 0;
-    _y = 0;
-    get x() {
-        return this._x;
-    }
-    get y() {
-        return this._y;
-    }
-    set x(value) {
-        this._x = value;
-        this.camera.x = value;
-    }
-    set y(value) {
-        this._y = value;
-        this.camera.y = value;
-    }
-    constructor(game, sprite, spawn, ...overlaySprites){
-        this.game = game;
-        this.camera = game.camera;
-        this.map = game.map;
-        this.camera.x = this._x = Map.toPixelUnits(spawn.x) + 8;
-        this.camera.y = this._y = Map.toPixelUnits(spawn.y) + 8;
-        for(let y = 0; y < 4; y++){
-            let row = [];
-            for(let x = 0; x < 4; x++){
-                row.push(sprite.cut(x * 16, y * 32, 16, 32));
-            }
-            this.sprites.push(row);
-        }
-        for (let overlaySprite of overlaySprites){
-            let overlaySpritesSprite = [];
-            for(let y = 0; y < 4; y++){
-                let row = [];
-                for(let x = 0; x < 4; x++){
-                    row.push(overlaySprite.cut(x * 16, y * 32, 16, 32));
-                }
-                overlaySpritesSprite.push(row);
-            }
-            this.overlaySprites.push(overlaySpritesSprite);
-        }
-    }
-    move(direction, difference) {
-        const performMove = ()=>{
-            let newPosition = {
-                x: this.x,
-                y: this.y
-            };
-            switch(direction){
-                case Direction.Left:
-                    newPosition.x -= 1;
-                    break;
-                case Direction.Right:
-                    newPosition.x += 1;
-                    break;
-                case Direction.Up:
-                    newPosition.y -= 1;
-                    break;
-                case Direction.Down:
-                    newPosition.y += 1;
-                    break;
-            }
-            if (!this.map.canWalk(newPosition.x, newPosition.y)) {
-                this.x = newPosition.x;
-                this.y = newPosition.y;
-                return true;
-            }
-            return false;
-        };
-        for(let i = 0; i < difference; i++){
-            if (!performMove()) {
-                this.lastMove = performance.now();
-                return;
-            }
-        }
-        this.lastMove = performance.now();
-        this.game.networkManager?.updatePosition(this.x, this.y);
-    }
-    walk(direction, speed) {
-        this.direction = direction;
-        this.walkSpeed = speed;
-        this.move(direction, speed * this.camera.deltaTime * 0.08);
-    }
-    async draw() {
-        let animationState = 0;
-        if (this.isMoving) {
-            animationState = Math.floor(performance.now() / 200 * this.walkSpeed % 4);
-        }
-        this.sprites[this.direction][animationState].drawAtCentered(this.x, this.y - 8);
-        for (const sprites of this.overlaySprites){
-            sprites[this.direction][animationState].drawAtCentered(this.x, this.y - 8);
-        }
     }
 }
 class SpriteImage {
@@ -437,7 +514,7 @@ class CuttedSprite {
     }
 }
 function getUrl(path) {
-    return `${location.protocol}//${location.host}/PixelMixel/public/${path}`;
+    return `${location.protocol}//${location.host}/${path}`;
 }
 async function getObjectFromJson(path) {
     return await await fetch(getUrl(path)).then((res)=>{
@@ -502,6 +579,7 @@ class Game {
     controller;
     map;
     player;
+    otherPlayers = {};
     resources;
     networkManager;
     constructor(){
@@ -512,7 +590,9 @@ class Game {
             this.map = new Map(this.camera, this.resources.mapSprite, this.resources.mapData, this.controller);
             let spawnPoints = this.map.data.spawnPoints;
             let randomSpwanIndex = Math.floor(Math.random() * spawnPoints.length);
-            this.player = new Player(this, this.resources.playerSprite, spawnPoints[randomSpwanIndex]);
+            this.player = new Player(this, this.resources.playerSprite, spawnPoints[randomSpwanIndex], true);
+            this.networkManager = new NetworkManager(this);
+            await this.networkManager.connect();
             let lastFrameTime = 0;
             const gameLoop = (progress)=>{
                 camera.deltaTime = progress - lastFrameTime;
@@ -552,7 +632,13 @@ class Game {
     render() {
         const canvas = this.camera.canvas;
         this.map?.draw(()=>{
-            this.player?.draw();
+            for (const player of [
+                ...Object.values(this.otherPlayers),
+                this.player
+            ].sort((a, b)=>a.y - b.y
+            )){
+                player.draw();
+            }
         });
         for(let i2 = -4; i2 <= 4; i2++){
             this.resources?.slot.drawAtUICentered(this.camera.width / 2 + i2 * 19, this.camera.height - 12);

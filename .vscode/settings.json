@@ -6,15 +6,6 @@
     "liveServer.settings.wait": 1000,
     "liveServer.settings.port": 5500,
 
-    "emeraldwalk.runonsave": {
-        "commands": [
-            {
-                "match": "\\.(ts|cs)$",
-                "cmd": "build.bat"
-            }
-        ]
-    },
-
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
@@ -23,7 +14,7 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
 
-        "server/bin/**": true,
+        "server/bin/**": false,
         "server/obj/**": true,
         "**/*.csproj": true
     }
