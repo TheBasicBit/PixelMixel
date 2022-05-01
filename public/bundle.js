@@ -437,7 +437,7 @@ class CuttedSprite {
     }
 }
 function getUrl(path) {
-    return `${location.protocol}//${location.host}/${path}`;
+    return `${location.protocol}//${location.host}/PixelMixel/public/${path}`;
 }
 async function getObjectFromJson(path) {
     return await await fetch(getUrl(path)).then((res)=>{
